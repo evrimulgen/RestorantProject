@@ -1,0 +1,51 @@
+﻿@Master['MasterWithUser.html']
+
+@Section['Body']
+    <h2 style="margin:2px;text-align:center" class="col-xs-offset-4 col-xs-8">
+        Selecciona una mesa
+    </h2>
+    <div class="container col-xs-12" id="divMenu">
+        <ul id="tiles" data-bind="foreach: tables" class="list-group row list-inline">
+            <li class="list-group-item col-xs-2">
+                <div data-bind="click: click" class="text-center">
+                    <p data-bind=" text: Number" style="font-size:30px"></p>
+                    <p data-bind="text: State" style="font-size:20px"></p>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <input type="hidden" value="@Model.user" id="inputUser"/>
+@EndSection
+@Section['JavaScript']
+<script type="text/javascript">
+    $(function () {
+        $.getJSON("@Path['~/']api/Products/GetTables?id=" + $("#inputUser").val(), function (data) {
+            ko.applyBindings(createViewModel(data));
+        })
+    })
+    
+    function createViewModel(jsonData) {
+        var self = this;
+        self.tables = ko.observableArray(jsonData.Tablets);
+        self.click = function (data, event) {
+            window.location = "@Path['~/']GridMenu/" + data.Number;
+             //$.get('/GridMenu/' + data.Number);
+        };
+    }
+    function activityModel(context) {
+        var self = this;
+        self.Number = ko.observable(context.Number);
+        self.State = '(' + context.State + ')';
+
+        //self.formattedPrice = ko.computed(function () {
+        //    var price = context.netPrice;
+        //    return price ? "$" + price.toFixed(2) : "None";
+        //});
+    }
+</script>
+
+@EndSection
+
+
+
+

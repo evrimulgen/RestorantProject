@@ -1,0 +1,283 @@
+﻿@Master['MasterWithUser.html']
+
+@Section['Body']
+<div style="background: black" class="container-fluid">
+    <div class="row">
+        <div class="col-xs-2">
+            <img src=@Path['~/img/Logosoho.png'] style="height:50px;" class="img-responsive" />
+        </div>
+        <div class="col-xs-2">
+            <img src=@Path['~/img/Logosoho.png'] class="img-responsive" style="height:50px;" />
+        </div>
+        <div class="col-xs-2">
+                <button class="btn myButtonHead" id="btnSend" data-bind="click: sendorder">Enviar</button>
+        </div>
+        <div class="col-xs-6">
+            <button class="btn myButtonHead" id="btnShowList" onclick="ShowHiddenList()">Lista</button>
+        </div>
+       
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-xs-2" style="color:white!important;font-size:32px">
+            <ul id="tiles" data-bind="foreach: menu" class="list-group row">
+                <li class="list-group-item col-xs-12" style="background: black;padding:1px">
+                    <div data-bind="click: click,text: Name" class="text-center" onmousedown="MouseDw(this)" onmouseup="MouseUp(this)">
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="col-xs-10" style="padding-left:0px">
+            <div id="divBody" class="col-xs-12" style="color:white!important; font-size:32px">
+                <div>
+                    <ul id="tiles" data-bind="foreach: product" class="list-group row" style="background:white">
+                        <li class="list-group-item col-xs-12" style="border-color:white; Background:black;padding:1px">
+                            <div data-bind="click: clickMenu">
+                                <span class="col-xs-8" data-bind="text: Name"></span>
+                                <button data-bind="click: addProduct" class="col-xs-1 myButton">+</button>
+                                <button data-bind="click: subProduct" class="col-xs-1 myButton">-</button>
+                                <span class="col-xs-1" data-bind="text: Count"></span>
+                                <span class="col-xs-1" data-bind="text: State"></span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="DivModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id="divBody" class="modal-body">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <ul id="tiles" data-bind="foreach: list" class="list-group row">
+                    <li class="list-group-item col-xs-12">
+                        <div>
+                            <div class="col-xs-8">
+                                <span class="col-xs-6" data-bind=" text: Name"></span>
+                                <span class="col-xs-3" data-bind=" text: Price"></span>
+                                <span class="col-xs-2" data-bind=" text: Count"></span>
+                                <span class="col-xs-1" data-bind=" text: State"></span>
+                            </div>
+                            <div class="col-xs-4">
+                                <a href="#" data-bind="click: remuveList">Eliminar</a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>  
+    </div>
+</div>
+<input type="hidden" value="@Model.table" id="inputTable"/>
+@EndSection
+@Section['JavaScript']
+
+<script type="text/javascript">
+    $(function () {
+        $("#divList").hide();
+        $("#btnShowList").html('Lista')
+        $.getJSON("@Path['~/']api/Products/getmenu?numberTable=" + $("#inputTable").val(), function (data) {
+            ko.applyBindings(createViewModel(data));
+        })
+    })
+    function ShowHiddenList()
+    {
+        $('#DivModal').modal('show');
+    }
+    function MaxList() {
+        $("#divBody").css({ "height": "200px" });
+        $("#divList").css({ "height": "350px" });
+    }
+    function MinList() {
+        $("#divBody").css({ "height": "350px" });
+        $("#divList").css({ "height": "200px" });
+    }
+
+    function createViewModel(jsonData) {
+        var self = this;
+        InitializedPage(self, jsonData);
+        self.list = ko.observableArray([]);
+        self.Total = ko.observable(0);
+        self.MenuColor = ko.observable('');
+        self.click = function (data, event) {
+            self.product.removeAll();
+            var k = 0;
+            ko.utils.arrayForEach(data.Products, function (item) {
+                var pro = SearchListProdcut(item);
+                var c = 0;
+                if (pro != null)
+                    c = pro.Count;
+                var pro = MapProduct(item);
+                pro.Count = c;
+                self.product.push(pro);
+                k++;
+            });
+        };
+        self.clickMenu = function (data, event) {
+            var p = self.product()[this.Id];
+            p.Count++;
+            var pro = MapProduct(p);
+            self.product.replace(self.product()[this.Id], pro);
+            RefreshList(it);
+            RefreshTotal();
+              
+        };
+        self.sendorder = function () {
+            SendDispatchedProduct(self.list());
+        }
+        self.remuveList = function () {
+            var name = this.Name;
+            var pro = MapProduct(p);
+            pro.Count = 0;
+            self.product.replace(self.product()[this.Id], pro);
+            self.list.remove(this);
+            RefreshTotal();
+           
+        };
+        self.addProduct = function () {
+            this.Count++;
+            var pro = MapProduct(this);
+            self.product.replace(this, pro);      
+            RefreshList(pro);
+            RefreshTotal();
+        };
+        self.subProduct = function () {
+            var p = self.product()[this.Id];
+            if (p.Count > 0) {
+                p.Count--;
+                var pro = MapProduct(p);
+                self.product.replace(self.product()[this.Id], pro);
+                RefreshList(pro);
+                RefreshTotal();
+            }
+
+        };
+    }
+    function SearchListProdcut(pro) {
+        var response = null;
+        if (self.list().length > 0) {
+            for (var i = 0, j = self.list().length; i < j; i++) {
+                if (pro.Name == self.list()[i].Name) {
+                    if (response == null)
+                        response = self.list()[i];
+                    else
+                        response.Count += self.list()[i].Count;
+                }
+            }
+        }
+        return response;
+    }
+    function RefreshTotal()
+    {
+        self.Total(0);
+        var t = 0;
+        if (self.list().length > 0) {
+            for (var i = 0, j = self.list().length; i < j; i++) {
+                t = t + (self.list()[i].Price * self.list()[i].Count);
+            }
+            self.Total(t);
+        }
+    }
+    function RefreshList(data)
+    {
+        var pro = MapProduct(data);
+        if (self.list().length > 0) {
+            for (var i = 0, j = self.list().length; i < j; i++) {
+                if (pro.Name == self.list()[i].Name && self.list()[i].Order == "") {
+                    self.list.remove(self.list()[i]);
+                    i = self.list().length;
+                } else if (pro.Name == self.list()[i].Name)
+                {
+                    pro.Count = pro.Count - self.list()[i].Count;
+                }
+            }
+        }
+        if (data.Count > 0) {
+            self.list.push(pro);
+        }
+    }
+    function MouseDw(o)
+    {
+        $(o).parent().css({ "background": "red" });
+      
+    }
+    function MouseUp(o) {
+        $(o).parent().css({ "background": "black" });
+        $(o).click();
+        $(o).effect("slide", "slow", 100);
+       
+    }
+    function MapProduct(p)
+    {
+        if (p.Order == null)
+            p.Order = "";
+        var p = { Name: p.Name, Price: p.Price, Count: p.Count, Id: p.Id, State: p.State, Order: p.Order };
+        return p;
+    }
+
+    function SendDispatchedProduct(data)
+    {
+        var send = data.filter(function (element) { return element.State === 0; });
+        var ord = new Order();
+        ord.Product = send;
+        ord.Table = {Number:@Model.table};
+        if (send.length > 0) {
+            $.ajax({
+                url: "@Path['~/']api/Products/send",
+                type: "POST",
+                data: ko.toJSON(ord),
+                datatype: "json",
+                processData: false,
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    if (data.Code == 0) {
+                        self.product.removeAll();
+                        self.list.removeAll();
+                        var k = 0;
+                        ko.utils.arrayForEach(self.menu()[0].Products, function (item) {
+                            var pro = SearchListProdcut(item);
+                            var c = 0;
+                            if (pro != null)
+                                c = pro.Count;
+                            var pro = MapProduct(item);
+                            pro.Count = c;
+                            self.product.push(pro);
+                            k++;
+                        });
+                        alert('Orden enviada.');
+                    } else
+                        alert(data.Message);
+                },
+                error: function () {
+                    alert('Error, mensaje no enviado.');
+                }
+                
+            });
+        }
+    }
+    function InitializedPage(self, jsonData)
+    {
+        self.menu = ko.observableArray(jsonData.Categorys);
+        self.product = ko.observableArray([]);
+        for (var i = 0, j = jsonData.Categorys[0].Products.length; i < j; i++) {
+            var item = jsonData.Categorys[0].Products[i];
+            var pro = MapProduct(item);
+            self.product.push(pro);
+
+        };
+    }
+    function Order()
+    {
+        var Number = null;
+        var Date = null;
+        var Table = null;
+        var Product = null;
+    }
+
+</script>
+@EndSection
+

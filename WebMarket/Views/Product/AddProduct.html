@@ -1,0 +1,109 @@
+﻿@Master['Master.html']
+
+@Section['Page']
+<div class="container">
+    <div class="row text-center  ">
+        <div class="col-md-12">
+            <br /><br />
+            <h2 style="color: white"> Registro de menu. </h2>
+            <br />
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-10 col-xs-offset-1">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>  Nueva Menu </strong>
+                </div>
+                <div class="panel-body">
+                    <form role="form" id="formCategority" action="#">
+                        <br />
+                        <div class="form-group input-group">
+                            <span class="input-group-addon"><i class="fa fa-circle-o-notch"></i></span>
+                            <input type="text" class="form-control" placeholder="Nombre" name="Name" data-bind="value: Product().Name" />
+                        </div>
+                        <div class="form-group input-group">
+                            <span class="input-group-addon"><i class="fa fa-tag"></i></span>
+                            <input type="text" class="form-control" placeholder="Descripción" name="Description" data-bind="value: Product().Description" />
+                        </div>
+                        <div class="form-group input-group">
+                            <span class="input-group-addon"><i class="fa fa-tag"></i></span>
+                            <input type="text" class="form-control" placeholder="Precio" name="Price" data-bind="value: Product().Price" />
+                        </div>
+                        <div class="form-group input-group">
+                            <span class="input-group-addon"><i class="fa fa-tag"></i></span>
+                            <select name="LetterMenuId" data-bind="options: Categority,
+                               optionsText: 'Name',
+                               value: Product().Categority"></select>
+                            <button class="submit" type="button" id="btnAdd" data-bind="click:createProduct" value="Submit">Agregar</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+@EndSection
+@Section['MasterJavaScript']
+<script language="javascript" type="text/javascript">
+    $(function () {
+        $('#formCategority').validate(
+            {
+                rules:
+                    {
+                        Name: "required",
+                        Description: "required",
+                        Price: "required"
+                    },
+                messages:
+                    {
+                        Name: "Nombre requerido",
+                        Description: "Descripción requerida",
+                        Price: "Precio requerido"
+                    },
+                submitHandler: function (form) {
+                    form.submit();
+                }
+            });
+        $("#dvLoading").show();
+        $.getJSON("@Path['~/']api/Category/GetCategory", function (data) {
+            ko.applyBindings(createViewModel(data));
+            $("#dvLoading").hide();
+        });
+    })
+    function createViewModel(data) {
+        var self = this;
+        self.Categority = ko.observableArray(data.Categoritys);
+        self.Product = ko.observable({Name:"", Description:"", Price:"",});
+        self.createProduct= function () {
+            if ($("#formCategority").valid()) {
+                $("#dvLoading").show();
+                $.ajax({
+                    url: "@Path['~/']api/Products/insert",
+                    type: "POST",
+                    data: ko.toJSON(self.Product),
+                    datatype: "json",
+                    processData: false,
+                    contentType: "application/json; charset=utf-8",
+                    success: function (data) {
+                        $("#dvLoading").hide();
+                        if (data.Code == 100)
+                            alert('Ya existe un menu con ese nombre.');
+                        else if (data.Code > 0)
+                            alert("Menu creada correctamente");
+                        else
+                            alert(data.Message);
+                    },
+                    error: function () {
+                        $("#dvLoading").hide();
+                        alert('No se pudo completar su solicitud.');
+                    }
+
+                });
+            }
+        }
+    }
+     </script>
+@EndSection

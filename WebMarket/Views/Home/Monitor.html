@@ -1,0 +1,46 @@
+﻿@Master['Master.html']
+
+@Section['Body']
+<div id="divBody" class="col-xs-12" style="overflow-y: scroll;height:300px;">
+    <div>
+        <ul id="tiles" data-bind="foreach: product" class="list-group row">
+            <li class="list-group-item col-xs-12">
+                <div>
+                    <span class="col-xs-6" data-bind="text: Name"></span>
+                    <span class="col-xs-1">$</span>
+                    <span class="col-xs-2" data-bind="text: Price"></span>
+                    <span class="col-xs-1" data-bind="text: Count"></span>
+                    <span class="col-xs-2" data-bind="text: State"></span>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+@EndSection
+@Section['JavaScript']
+<script language="javascript" type="text/javascript">
+    $(function () {
+        var viewModel = createViewModel();
+        $.connection.hub.logging = true;
+        //var OrdersHub = $.connection.orders;
+        //OrdersHub.client.moved = function (item) {
+        //    viewModel.loadData(item);
+        //};
+        $.connection.hub.start().done(function () {
+        });
+        ko.applyBindings(viewModel);
+    })
+    function createViewModel() {
+        var self = this;
+        self.Categority = ko.observable({ Name: "", Description: "" });
+        self.OrdersHub = $.connection.orders;
+        self.product = ko.observableArray([]);
+        self.OrdersHub.client.moved = function (data) {
+            ko.utils.arrayForEach(data.Product, function (item) {
+                self.product.push({Name: item.Name, Price: item.Price, Count: item.Count, State: item.State});
+            });
+        };
+       
+    }
+</script>
+@EndSection

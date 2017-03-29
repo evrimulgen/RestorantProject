@@ -1,0 +1,15 @@
+﻿@Master['Master.html']
+
+@Section['Page']
+<div class="page-header">
+    <div class="col-xs-offset-3">
+        <span style="font-size:16px;color:#CA008A; padding:0px 15px" >Moso: @Model.user</span>
+        @If.Model.IsTable
+        <span style="font-size:16px;color:#CA008A; padding:0px 15px">Mesa: @Model.table</span>
+        @EndIf
+    </div>
+</div>
+
+@Section['Body'];
+@Section['JavaScript']
+@EndSection

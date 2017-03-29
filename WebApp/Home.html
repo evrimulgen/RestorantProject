@@ -1,0 +1,51 @@
+﻿@Master['Layout.html']
+
+@Section['Body']
+
+<script language="javascript" type="text/javascript">
+
+  function UsersViewModel() {
+
+  var self = this;
+  var baseUri = "http://localhost:14586/api/Products";
+  self.product = ko.observableArray(); // Init an empty observable array
+  self.create = function (formElement) {
+  $.post(baseUri + '/insert', $(formElement).serialize(), null, "json")
+  .done(function (o) {
+  //self.users.push(o);
+  alert(o);
+  });
+  }
+  self.update = function (user) {
+  $.ajax({
+  type: "PUT",
+  url: baseUri,
+  data: user
+  });
+  }
+  self.remove = function (user) {
+  // First remove from the server, then from the view-model.
+  $.ajax({
+  type: "DELETE",
+  url: baseUri + '/' + user.Id
+  }).done(function () {
+  self.users.remove(user);
+  });
+  }
+
+  $.getJSON(baseUri, self.product);
+  }
+</script>
+<form data-bind="submit: create">
+    <div>Codigo:</div>
+    <div><input type="text" name="Code" /></div>
+    <div>Nombre:</div>
+    <div><input type="text" name="Name" /></div>
+    <div>Descripción:</div>
+    <div><input type="text" name="Description" /></div>
+    <button type="submit">Add</button>
+</form>
+
+@EndSection
+
+

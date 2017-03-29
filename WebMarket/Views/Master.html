@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>SuperMarket</title>
+    <meta content='text/html' charset='iso-8859-1' http-equiv='Content-Type' />
+    <script src=@Path['~/Scripts/jquery-2.1.3.js']></script>
+    <script src=@Path['~/Scripts/knockout-3.0.0.js']></script>
+    <script src=@Path['~/Scripts/jquery-ui.js']></script>
+    <script src=@Path['~/Scripts/jquery.validate.min.js']></script>
+    <script src=@Path['~/Scripts/bootstrap.js']></script>
+    <script src=@Path['~/Scripts/jquery.signalR-2.2.0.min.js']></script>
+    <script src=@Path['~/signalr/hubs']></script>
+    <link rel="stylesheet" href=@Path['~/Content/bootstrap.css'] />
+    <link rel="stylesheet" href=@Path['~/Content/bootstrap-theme.css'] />
+    <style>
+        #dvLoading
+        {
+           background:#000 url(@Path['~/img/loader.gif') no-repeat center center;
+           height: 100px;
+           width: 100px;
+           position: fixed;
+           z-index: 1000;
+           left: 50%;
+           top: 50%;
+           margin: -25px 0 0 -25px;
+        }
+
+        .fa {
+            display: inline-block;
+            font: normal normal normal 14px/1 FontAwesome;
+            font-size: inherit;
+            text-rendering: auto;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            }
+        .fa-tag:before {
+            content: "\f02b";
+            }
+        .fa-circle-o-notch:before {
+        content: "\f1ce";
+            }
+        ul li {
+            padding:1px!important;
+        }
+        ul li div {
+            background:#333;
+            color:white;
+        }
+        .divBody {
+            background: black;
+        }
+        .input {
+            background:transparent; 
+            border-color:#CA008A
+        }
+        .buttonBlack {
+            background:#333;
+            border:2px; 
+            color:#CA008A;
+            width: 100%;
+        }
+        .sapanText {
+             color:#CA008A;
+        }
+        .myButton {
+        background:transparent;
+        border:0px; 
+        color:#CA008A;
+        }
+        .myButtonHead {
+        background:#666;
+        border:5px; 
+        color:white;
+        }
+    </style>
+</head>
+<body style="background:black">
+    <header class="navbar navbar-bright navbar-fixed-top" role="banner" data-spy="affix" data-offset-top="80">
+        <div class="container">
+            <div class="navbar-header">
+                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" id="brand" href="#" title="Bootstrap Zero is free themes for Bootstrap">PS <span style="color:#f9f9f9;font-weight:200;">JL</span></a>
+            </div>
+            <nav class="collapse navbar-collapse" role="navigation" id="navbar">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Carta Menu<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="@Path['~/AddLetter']">Agregar</a></li>
+                            <li><a href="@Path['~/ListLetter']">Listar</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Categorias<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="@Path['~/AddCategority']">Agregar</a></li>
+                            <li><a href="@Path['~/ListCategority']">Listar</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Menu<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="@Path['~/AddProduct']">Agregar</a></li>
+                            <li><a href="@Path['~/ListProduct']">Listar</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    @Section['Page'];
+    <div id="dvLoading"></div>
+    @Section['MasterJavaScript']
+
+</body>
+</html>

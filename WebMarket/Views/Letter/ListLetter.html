@@ -1,0 +1,100 @@
+﻿@Master['Master.html']
+
+@Section['Page']
+<div class="container">
+    <div class="row text-center  ">
+        <div class="col-md-12">
+            <br /><br />
+            <h2 style="color: white"> Listado de cartas. </h2>
+            <br />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-10 col-xs-offset-1">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong>  Cartas </strong>
+                </div>
+                <div class="panel-body">
+                    <table id="tlLetter" class="table">
+                        <thead>
+                            <tr><th>Nombre</th><th>Descripcion</th></tr>
+                        </thead>
+                        <tbody data-bind="foreach: Letter">
+                            <tr>
+                                <td data-bind="text: Name"></td>
+                                <td>
+                                    <button value="Eliminar" data-bind="click: remove">Eliminar</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+
+    </div>
+</div>
+@EndSection
+@Section['MasterJavaScript']
+<script language="javascript" type="text/javascript">
+    $(function () {
+        $("#tlCategory").hide();
+        $('#formCategority').validate(
+            {
+                rules:
+                    {
+                        Name: "required",
+                        Description: "required"
+                    },
+                messages:
+                    {
+                        Name: "Nombre requerido",
+                        Description: "Descripción requerida"
+                    },
+                submitHandler: function (form) {
+                    form.submit();
+                }
+            });
+        $("#dvLoading").show();
+        $.getJSON("@Path['~/']api/Products/GetLetters", function (data) {   
+            ko.applyBindings(createViewModel(data));
+            $("#dvLoading").hide();
+        });
+    })
+    function createViewModel(data) {
+        var self = this;
+        self.Letter = ko.observableArray(data);
+        self.remove = function (data) {
+            $("#dvLoading").show();
+            $.ajax({
+                url: "@Path['~/']api/Letter/deleteLetter",
+                type: "DELETE",
+                data: ko.toJSON(data),
+                datatype: "json",
+                processData: false,
+                contentType: "application/json; charset=utf-8",
+                success: function (dataSucces) {                      
+                    $("#dvLoading").hide();
+                    if (dataSucces.Code == 100)
+                        alert('Ya existe una categoria con ese nombre.');
+                    else if (dataSucces.Code > 0) {
+                        self.Letter.remove(function (item) { return item.Name == data.Name });
+                        alert("Carta eliminada");
+                    }
+                    else
+                        alert(dataSucces.Message);
+                },
+                error: function () {
+                    $("#dvLoading").hide();
+                    alert('No se pudo completar su solicitud.');
+                }
+
+            });
+        }
+    }
+   
+     </script>
+@EndSection
