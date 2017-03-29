@@ -5,6 +5,7 @@
 <script language="javascript" type="text/javascript">
 
   function UsersViewModel() {
+  
   var self = this;
   var baseUri = "http://localhost:14586/api/Products";
   self.product = ko.observableArray(); // Init an empty observable array
@@ -22,6 +23,8 @@
   data: user
   });
   }
+  
+  
   self.remove = function (user) {
   // First remove from the server, then from the view-model.
   $.ajax({
